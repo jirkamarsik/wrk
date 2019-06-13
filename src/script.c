@@ -164,7 +164,7 @@ void script_request(lua_State *L, char **buf, size_t *len) {
     lua_pop(L, pop);
 }
 
-void script_response(lua_State *L, int status, buffer *headers, buffer *body) {
+void script_response(lua_State *L, int status, buffer *headers, buffer *body, uint64_t started_at, uint64_t finished_at) {
     lua_getglobal(L, "response");
     lua_pushinteger(L, status);
     lua_newtable(L);
@@ -176,7 +176,9 @@ void script_response(lua_State *L, int status, buffer *headers, buffer *body) {
     }
 
     lua_pushlstring(L, body->buffer, body->cursor - body->buffer);
-    lua_call(L, 3, 0);
+    lua_pushinteger(L, started_at);
+    lua_pushinteger(L, finished_at);
+    lua_call(L, 5, 0);
 
     buffer_reset(headers);
     buffer_reset(body);
